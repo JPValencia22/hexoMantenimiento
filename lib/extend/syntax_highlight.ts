@@ -1,21 +1,20 @@
-import type Hexo from '../hexo';
+import type Hexo from "../hexo";
 
 export interface HighlightOptions {
-  lang: string | undefined,
-  caption: string | undefined,
-  lines_length?: number | undefined,
+  lang: string | undefined;
+  caption: string | undefined;
+  lines_length: number | undefined;
 
   // plugins/filter/before_post_render/backtick_code_block
-  firstLineNumber?: string | number
+  firstLineNumber: string | number;
 
   // plugins/tag/code.ts
-  language_attr?: boolean | undefined;
+  language_attr: boolean | undefined;
   firstLine?: number;
-  line_number?: boolean | undefined;
-  line_threshold?: number | undefined;
+  line_number: boolean | undefined;
+  line_threshold: number | undefined;
   mark?: number[];
-  wrap?: boolean | undefined;
-
+  wrap: boolean | undefined;
 }
 
 interface HighlightExecArgs {
@@ -29,7 +28,7 @@ interface StoreFunction {
 }
 
 interface Store {
-  [key: string]: StoreFunction
+  [key: string]: StoreFunction;
 }
 
 class SyntaxHighlight {
@@ -40,7 +39,7 @@ class SyntaxHighlight {
   }
 
   register(name: string, fn: StoreFunction): void {
-    if (typeof fn !== 'function') throw new TypeError('fn must be a function');
+    if (typeof fn !== "function") throw new TypeError("fn must be a function");
 
     this.store[name] = fn;
   }
@@ -52,7 +51,8 @@ class SyntaxHighlight {
   exec(name: string, options: HighlightExecArgs): string {
     const fn = this.store[name];
 
-    if (!fn) throw new TypeError(`syntax highlighter ${name} is not registered`);
+    if (!fn)
+      throw new TypeError(`syntax highlighter ${name} is not registered`);
     const ctx = options.context;
     const args = options.args || [];
 
