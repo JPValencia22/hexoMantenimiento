@@ -116,116 +116,107 @@ class PostRenderEscape {
           // check if it is a complete tag {{ }}
           if (next_char === '{') {
             state = STATE_SWIG_VAR;
-            idx++;
-          } else if (next_char === '#') {
+            continue;
+          }
+          if (next_char === '#') {
             state = STATE_SWIG_COMMENT;
-            idx++;
-          } else if (next_char === '%') {
+            continue;
+          }
+          if (next_char === '%') {
             state = STATE_SWIG_TAG;
-            idx++;
-            swig_tag_name = '';
-            swig_full_tag_start_buffer = '';
-            swig_tag_name_begin = false; // Mark if it is the first non white space char in the swig tag
-            swig_tag_name_end = false;
-          } else {
-            output += char;
+            continue;
           }
-        } else {
           output += char;
+          return;
         }
-      } else if (state === STATE_SWIG_TAG) {
-        if (char === '%' && next_char === '}') {
-          // From swig back to plain text
-          idx++;
-          if (swig_tag_name !== '' && str.includes(`end${swig_tag_name}`)) {
-            state = STATE_SWIG_FULL_TAG;
-          } else {
-            swig_tag_name = '';
-            state = STATE_PLAINTEXT;
-            output += PostRenderEscape.escapeContent(
-              this.stored,
-              'swig',
-              `{%${buffer}%}`
-            );
+        output += char;
+      }
+
+      if (state === STATE_SWIG_TAG && char === '%' && next_char === '}') {
+        // From swig back to plain text
+        idx++;
+        if (swig_tag_name !== '' && str.includes(`end${swig_tag_name}`)) {
+          state = STATE_SWIG_FULL_TAG;
+          return;
+        }
+        swig_tag_name = '';
+        state = STATE_PLAINTEXT;
+        output += PostRenderEscape.escapeContent(
+          this.stored,
+          'swig',
+          `{%${buffer}%}`
+        );
+        buffer = '';
+      } else {
+        buffer = buffer + char;
+        swig_full_tag_start_buffer = swig_full_tag_start_buffer + char;
+
+        if (isNonWhiteSpaceChar(char)) {
+          if (!swig_tag_name_begin && !swig_tag_name_end) {
+            swig_tag_name_begin = true;
           }
 
-          buffer = '';
-        } else {
-          buffer = buffer + char;
-          swig_full_tag_start_buffer = swig_full_tag_start_buffer + char;
-
-          if (isNonWhiteSpaceChar(char)) {
-            if (!swig_tag_name_begin && !swig_tag_name_end) {
-              swig_tag_name_begin = true;
-            }
-
-            if (swig_tag_name_begin) {
-              swig_tag_name += char;
-            }
-          } else {
-            if (swig_tag_name_begin === true) {
-              swig_tag_name_begin = false;
-              swig_tag_name_end = true;
-            }
+          if (swig_tag_name_begin) {
+            swig_tag_name += char;
           }
+        } else if (swig_tag_name_begin === true) {
+          swig_tag_name_begin = false;
+          swig_tag_name_end = true;
         }
-      } else if (state === STATE_SWIG_VAR) {
-        if (char === '}' && next_char === '}') {
-          idx++;
+      }
+
+      if (state === STATE_SWIG_VAR && char === '}' && next_char === '}') {
+        idx++;
+        state = STATE_PLAINTEXT;
+        output += PostRenderEscape.escapeContent(
+          this.stored,
+          'swig',
+          `{{${buffer}}}`
+        );
+        buffer = '';
+      } else {
+        buffer = buffer + char;
+      }
+
+      // From swig back to plain text
+      if (state === STATE_SWIG_COMMENT && char === '#' && next_char === '}') {
+        idx++;
+        state = STATE_PLAINTEXT;
+        buffer = '';
+      }
+
+      if (state === STATE_SWIG_FULL_TAG && char === '{' && next_char === '%') {
+        let swig_full_tag_end_buffer = '';
+        let _idx = idx + 2;
+        for (; _idx < length; _idx++) {
+          const _char = str[_idx];
+          const _next_char = str[_idx + 1];
+
+          if (_char === '%' && _next_char === '}') {
+            _idx++;
+            break;
+          }
+
+          swig_full_tag_end_buffer = swig_full_tag_end_buffer + _char;
+        }
+
+        if (swig_full_tag_end_buffer.includes(`end${swig_tag_name}`)) {
           state = STATE_PLAINTEXT;
           output += PostRenderEscape.escapeContent(
             this.stored,
             'swig',
-            `{{${buffer}}}`
+            `{%${swig_full_tag_start_buffer}%}${buffer}{%${swig_full_tag_end_buffer}%}`
           );
+          idx = _idx;
+          swig_full_tag_start_buffer = '';
+          swig_full_tag_end_buffer = '';
           buffer = '';
-        } else {
-          buffer = buffer + char;
+          return;
         }
-      } else if (state === STATE_SWIG_COMMENT) {
-        // From swig back to plain text
-        if (char === '#' && next_char === '}') {
-          idx++;
-          state = STATE_PLAINTEXT;
-          buffer = '';
-        }
-      } else if (state === STATE_SWIG_FULL_TAG) {
-        if (char === '{' && next_char === '%') {
-          let swig_full_tag_end_buffer = '';
-
-          let _idx = idx + 2;
-          for (; _idx < length; _idx++) {
-            const _char = str[_idx];
-            const _next_char = str[_idx + 1];
-
-            if (_char === '%' && _next_char === '}') {
-              _idx++;
-              break;
-            }
-
-            swig_full_tag_end_buffer = swig_full_tag_end_buffer + _char;
-          }
-
-          if (swig_full_tag_end_buffer.includes(`end${swig_tag_name}`)) {
-            state = STATE_PLAINTEXT;
-            output += PostRenderEscape.escapeContent(
-              this.stored,
-              'swig',
-              `{%${swig_full_tag_start_buffer}%}${buffer}{%${swig_full_tag_end_buffer}%}`
-            );
-            idx = _idx;
-            swig_full_tag_start_buffer = '';
-            swig_full_tag_end_buffer = '';
-            buffer = '';
-          } else {
-            buffer += char;
-          }
-        } else {
-          buffer += char;
-        }
+        buffer += char;
       }
+      buffer += char;
     }
-
     return output;
   }
 }
@@ -248,7 +239,9 @@ const prepareFrontMatter = (data: any, jsonMode: boolean) => {
         || item.includes(']')
         || item.includes('\'')
         || item.includes('"')
-      ) { data[key] = `"${item.replace(/"/g, '\\"')}"`; }
+      ) {
+        data[key] = `"${item.replace(/"/g, '\\"')}"`;
+      }
     }
   }
 
@@ -521,7 +514,9 @@ class Post {
       && !!ctx.render.renderer.get(ext).disableNunjucks;
 
     // front-matter overrides renderer's option
-    if (typeof data.disableNunjucks === 'boolean') { disableNunjucks = data.disableNunjucks; }
+    if (typeof data.disableNunjucks === 'boolean') {
+      disableNunjucks = data.disableNunjucks;
+    }
 
     const cacheObj = new PostRenderEscape();
 
