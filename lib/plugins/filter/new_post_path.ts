@@ -88,9 +88,8 @@ function newPostPathFilter(
       hash
     };
 
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
-      if (!reservedKeys[key]) filenameData[key] = data[key];
+    for (const element of keys) {
+      if (!reservedKeys[element]) filenameData[element] = data[element];
     }
 
     target = join(
