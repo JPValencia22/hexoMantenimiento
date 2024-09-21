@@ -1,8 +1,7 @@
-import { htmlTag } from "hexo-util";
-
-// const rUrl = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\w]*))?)/;
+import { htmlTag } from 'hexo-util';
 
 const rUrl = /([a-zA-Z]+:\/\/)?([\w.-]+)(\/[\w/.-]*)?(\?[\w=&%.-]*)?(#[\w-]*)?/;
+
 /**
  * Link tag
  *
@@ -11,10 +10,10 @@ const rUrl = /([a-zA-Z]+:\/\/)?([\w.-]+)(\/[\w/.-]*)?(\?[\w=&%.-]*)?(#[\w-]*)?/;
  */
 
 function linkTag(args: string[]) {
-  let url = "";
+  let url = '';
   const text = [];
   let external = false;
-  let title = "";
+  let title = '';
   let i = 0;
   const len = args.length;
 
@@ -38,21 +37,21 @@ function linkTag(args: string[]) {
   if (args.length) {
     const shift = args[0];
 
-    if (shift === "true" || shift === "false") {
-      external = shift === "true";
+    if (shift === 'true' || shift === 'false') {
+      external = shift === 'true';
       args.shift();
     }
 
-    title = args.join(" ");
+    title = args.join(' ');
   }
 
   const attrs = {
     href: url,
     title,
-    target: external ? "_blank" : "",
+    target: external ? '_blank' : ''
   };
 
-  return htmlTag("a", attrs, text.join(" "));
+  return htmlTag('a', attrs, text.join(' '));
 }
 
 export = linkTag;
