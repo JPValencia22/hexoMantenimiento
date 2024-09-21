@@ -18,7 +18,11 @@ const reservedKeys = {
   hash: true
 };
 
-function newPostPathFilter(this: Hexo, data: PostSchema = {}, replace?: boolean): Promise<string> {
+function newPostPathFilter(
+  this: Hexo,
+  data: PostSchema = {},
+  replace?: boolean
+): Promise<string> {
   const sourceDir = this.source_dir;
   const draftDir = join(sourceDir, '_drafts');
   const postDir = join(sourceDir, '_posts');
@@ -32,7 +36,6 @@ function newPostPathFilter(this: Hexo, data: PostSchema = {}, replace?: boolean)
   }
 
   let target = '';
-
   if (path) {
     switch (layout) {
       case 'page':
@@ -59,8 +62,10 @@ function newPostPathFilter(this: Hexo, data: PostSchema = {}, replace?: boolean)
       default: {
         const date = moment(data.date || Date.now());
         const keys = Object.keys(data);
-        const hash = createSha1Hash().update(slug + date.unix().toString())
-          .digest('hex').slice(0, 12);
+        const hash = createSha1Hash()
+          .update(slug + date.unix().toString())
+          .digest('hex')
+          .slice(0, 12);
 
         const filenameData = {
           year: date.format('YYYY'),
@@ -77,14 +82,19 @@ function newPostPathFilter(this: Hexo, data: PostSchema = {}, replace?: boolean)
           if (!reservedKeys[key]) filenameData[key] = data[key];
         }
 
-        target = join(postDir, permalink.stringify({
-          ...permalinkDefaults,
-          ...filenameData
-        }));
+        target = join(
+          postDir,
+          permalink.stringify({
+            ...permalinkDefaults,
+            ...filenameData
+          })
+        );
       }
     }
   } else {
-    return Promise.reject(new TypeError('Either data.path or data.slug is required!'));
+    return Promise.reject(
+      new TypeError('Either data.path or data.slug is required!')
+    );
   }
 
   if (!extname(target)) {
