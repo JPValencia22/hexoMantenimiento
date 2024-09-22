@@ -2,7 +2,7 @@
 menu:
   Home: /
   Archives: /archives
-  Tags: /tags
+  Tags: /
   Github:
     url: https://github.com/JPValencia22/hexoMantenimiento
     icon: github
