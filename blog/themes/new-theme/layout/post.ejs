@@ -64,8 +64,8 @@
           window.location.reload(); // Reload page after edit
         })
         .catch(error => {
-          console.error('Error editing post:', error);
-          alert('Failed to edit post.');
+          console.error('Error editando el post:', error);
+          alert('error editando el post.');
         });
 
         // Close the modal after saving
@@ -100,21 +100,21 @@
     const postName = postPath.split('/').filter(Boolean).pop(); // Get post name from path
     const deleteUrl = `http://localhost:3000/delete/${postName}`; // Backend endpoint for deleting the post
 
-    if (confirm('Are you sure you want to delete this post?')) {
+    if (confirm('Esta seguro de eliminar este post?')) {
       // Make a DELETE request to remove the post
       fetch(deleteUrl, { method: 'DELETE' })
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert('Post deleted successfully');
+          alert('Post eliminado con éxito!'); // Display success message
           window.location.href = "http://localhost:4000"; // Redirect to home after deletion
         } else {
-          alert('Error deleting post: ' + data.message);
+          alert('Error eliminando el post: ' + data.message);
         }
       })
       .catch(error => {
-        console.error('Error deleting post:', error);
-        alert('Failed to delete post.');
+        console.error('Se produjo un error al eliminar el post :', error);
+        alert('Error al eliminar el post.');
       });
     }
   }
