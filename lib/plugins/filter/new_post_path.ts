@@ -18,7 +18,11 @@ const reservedKeys = {
   hash: true
 };
 
-function newPostPathFilter(this: Hexo, data: PostSchema = {}, replace?: boolean): Promise<string> {
+function newPostPathFilter(
+  this: Hexo,
+  data: PostSchema = {},
+  replace?: boolean
+): Promise<string> {
   const sourceDir = this.source_dir;
   const draftDir = join(sourceDir, '_drafts');
   const postDir = join(sourceDir, '_posts');
@@ -32,21 +36,21 @@ function newPostPathFilter(this: Hexo, data: PostSchema = {}, replace?: boolean)
   }
 
   let target = '';
-
   if (path) {
     switch (layout) {
       case 'page':
         target = join(sourceDir, path);
         break;
-
       case 'draft':
         target = join(draftDir, path);
         break;
-
       default:
         target = join(postDir, path);
+        break;
     }
-  } else if (slug) {
+  }
+
+  if (slug) {
     switch (layout) {
       case 'page':
         target = join(sourceDir, slug, 'index');
@@ -56,35 +60,46 @@ function newPostPathFilter(this: Hexo, data: PostSchema = {}, replace?: boolean)
         target = join(draftDir, slug);
         break;
 
-      default: {
-        const date = moment(data.date || Date.now());
-        const keys = Object.keys(data);
-        const hash = createSha1Hash().update(slug + date.unix().toString())
-          .digest('hex').slice(0, 12);
-
-        const filenameData = {
-          year: date.format('YYYY'),
-          month: date.format('MM'),
-          i_month: date.format('M'),
-          day: date.format('DD'),
-          i_day: date.format('D'),
-          title: slug,
-          hash
-        };
-
-        for (let i = 0, len = keys.length; i < len; i++) {
-          const key = keys[i];
-          if (!reservedKeys[key]) filenameData[key] = data[key];
-        }
-
-        target = join(postDir, permalink.stringify({
-          ...permalinkDefaults,
-          ...filenameData
-        }));
-      }
+      default:
+        target = initValues(target);
+        break;
     }
   } else {
-    return Promise.reject(new TypeError('Either data.path or data.slug is required!'));
+    return Promise.reject(
+      new TypeError('Either data.path or data.slug is required!')
+    );
+  }
+
+  function initValues(target: string): string {
+    const date = moment(data.date || Date.now());
+    const keys = Object.keys(data);
+    const hash = createSha1Hash()
+      .update(slug + date.unix().toString())
+      .digest('hex')
+      .slice(0, 12);
+
+    const filenameData = {
+      year: date.format('YYYY'),
+      month: date.format('MM'),
+      i_month: date.format('M'),
+      day: date.format('DD'),
+      i_day: date.format('D'),
+      title: slug,
+      hash
+    };
+
+    for (const element of keys) {
+      if (!reservedKeys[element]) filenameData[element] = data[element];
+    }
+
+    target = join(
+      postDir,
+      permalink.stringify({
+        ...permalinkDefaults,
+        ...filenameData
+      })
+    );
+    return target;
   }
 
   if (!extname(target)) {
