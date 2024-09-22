@@ -53,8 +53,12 @@ $ node server.js
 ### Eliminar Publicaciones
 La funcionalidad de eliminación de posts te permite eliminar cualquier entrada directamente desde la interfaz del blog. Simplemente selecciona el post que deseas eliminar y usa el botón de eliminación.
 
+<img src="https://github.com/JPValencia22/hexoMantenimiento/blob/development/blog/themes/new-theme/source/img/featDelete.png?raw=true" alt="Hexo logo"  align="center" />
+
 ### Editar Publicaciones
 La funcionalidad de edición te permite modificar los posts existentes a través de la interfaz del blog. Selecciona el post que deseas editar, realiza los cambios y guarda la actualización. Los cambios se verán reflejados inmediatamente.
+
+<img src="https://github.com/JPValencia22/hexoMantenimiento/blob/development/blog/themes/new-theme/source/img/featEdit.png?raw=true" alt="Hexo logo"  align="center" />
 
 ### Diseño de Funcionalidades
 
@@ -78,4 +82,4 @@ Limpieza y Generación: Usamos los comandos `hexo clean` y `hexo generate` despu
 - Clona el repositorio y sigue los pasos de instalación anteriores.
 - Usa `npx hexo server -w` para iniciar el blog.
 - En otra terminal, usa `node server.js` para iniciar el servidor Express.
-- Navega por el blog, crea nuevas publicaciones, edita o elimina los posts existentes.
+- Navega por el blog, edita o elimina los posts existentes.
