@@ -1,0 +1,29 @@
+<%- partial('_partial/article-full', {item: page}) %>
+
+<!-- Botones de Editar y Eliminar -->
+<div class="button-container">
+  <button onclick="editPost('<%= page.path %>')" class="edit-button">
+    Editar
+  </button>
+  <button onclick="deletePost('<%= page.path %>')" class="delete-button">
+    Eliminar
+  </button>
+</div>
+
+<!-- Modal para editar el post -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Editar Post</h2>
+    <textarea
+      id="editContent"
+      rows="10"
+      cols="50"
+      placeholder="Ingrese el nuevo contenido aquí..."
+    ></textarea
+    ><br />
+    <button id="saveButton">Guardar</button>
+  </div>
+</div>
+
+
